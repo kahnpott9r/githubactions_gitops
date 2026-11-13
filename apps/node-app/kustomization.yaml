@@ -8,4 +8,4 @@ resources:
 # newTag được job "update-gitops" của repo githubactions tự cập nhật (sha-<7 ký tự commit>)
 images:
   - name: ghcr.io/kahnpott9r/githubactions
-    newTag: sha-11a0492
+    newTag: sha-0492c76
