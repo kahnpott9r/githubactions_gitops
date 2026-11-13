@@ -1,0 +1,28 @@
+name: Validate manifests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  kustomize-build:
+    name: kustomize build (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [node-app, java-app]
+    steps:
+      - uses: actions/checkout@v4
+
+      # kubectl có sẵn trên ubuntu-latest; render manifest để bắt lỗi YAML / kustomize
+      - name: Render manifests
+        run: kubectl kustomize "apps/${{ matrix.app }}" | tee rendered.yaml
+
+      - name: Show image đang deploy
+        run: grep -E '^\s+image:' rendered.yaml

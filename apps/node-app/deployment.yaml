@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app
+  labels:
+    app: node-app
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: node-app
+  # Rolling update: luôn giữ đủ pod sẵn sàng, tạo thêm tối đa 1 pod mới mỗi lượt
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: node-app
+    spec:
+      containers:
+        - name: node-app
+          # Tag thật nằm ở kustomization.yaml (images: newTag) — CI repo githubactions cập nhật
+          image: ghcr.io/kahnpott9r/githubactions
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
